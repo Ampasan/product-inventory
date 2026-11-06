@@ -1,23 +1,31 @@
-const express = require('express');
+import "dotenv/config";
+import express, { json } from "express";
+import connectDB from "./config/database.js";
+import productRoutes from "./routes/product.routes.js";
 
 const app = express();
-const port = 3000;
+const PORT = process.env.PORT || 3000;
 
-app.use(express.json())
+// Middleware
+app.use(json());
 
-app.get("/", (req, res) => {
+// Endpoint utama
+app.get("/", (_req, res) => {
   res.json({
-    message: "Server ExpressJS berhasil berjalan!",
+    message: "API Produk ExpressJS",
   });
 });
 
-app.get("/api/health", (req, res) => {
-  res.status(200).json({
-    status: "OK",
-    message: "Server berjalan dengan baik",
-  });
-});
+// Route produk
+app.use("/api/products", productRoutes);
 
-app.listen(port, () => {
-  console.log(`Server berjalan di http://localhost:${port}`);
-});
+// Menjalankan server setelah database terhubung
+async function startServer() {
+  await connectDB();
+
+  app.listen(PORT, () => {
+    console.log(`Server berjalan di http://localhost:${PORT}`);
+  });
+}
+
+startServer();
